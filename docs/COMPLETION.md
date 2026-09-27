@@ -13,8 +13,9 @@ Local verification completed on 2026-09-27 using Python 3.12.14 on Windows.
 | PDF report | Seven-page baseline report rendered and visually inspected |
 | Evidence integrity | All six scenario manifests verified successfully; automated tamper test passed |
 | Repeatability | Independent-run predictions and validation results match in the end-to-end test |
-| Git workflow | Local development branch prepared; supplied remote is `https://github.com/kkkkkkemi/Quant-risk.git` |
-| GitHub Actions | Workflow implemented; current hosted verification is tracked in the development PR checks |
+| Git workflow | Complete project published on `feature/pd-validation-toolkit`; [pull request #1](https://github.com/kkkkkkemi/Quant-risk/pull/1) opened for review |
+| GitHub Actions | [Hosted run](https://github.com/kkkkkkemi/Quant-risk/actions/runs/36329160142) succeeded: Python 3.11/3.12 checks and the full scenario demonstration; reports and evidence retained as artifacts |
+| Language | Project documentation, source, configuration, tests, command-line output and generated reports use English |
 
 ## Substantive baseline result
 
@@ -22,6 +23,6 @@ The baseline final cohort has 3,600 borrowers and 196 defaults (5.44%). Logistic
 
 This illustrates calibration sampling/transfer risk: calibrating on an independent later window does not guarantee improved final-period calibration. Development data or test thresholds were not changed to manufacture a passing result. The reports recommend fresh mature data and reviewed recalibration before model use.
 
-## GitHub completion boundary
+## Hosted verification and review
 
-At the initial local verification, repository access required authentication. The user subsequently signed in, and the repository was confirmed to be an empty private repository. The project is being imported through the authenticated browser on `feature/pd-validation-toolkit`, preserving a separate `main` base for a pull request. Local Git credentials remain independent of browser sign-in. No remote history is overwritten. This local record predates the first hosted run: review the development PR checks and Actions artifacts for the current online execution result rather than treating local success as hosted success.
+The supplied repository was confirmed to be an empty private repository after authentication. The complete project was published on `feature/pd-validation-toolkit` with a separate `main` base and an open pull request. No remote history was overwritten. Hosted workflow run `36329160142`, for revision `e9e8837272fcecafb1114bec6398b26a363c2aae`, completed successfully and produced package/coverage artifacts for both Python versions plus the full PDF/evidence artifact. Later documentation updates are checked by subsequent runs; the pull request shows the current revision's status. The pull request remains open for review.
