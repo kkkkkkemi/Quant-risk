@@ -7,13 +7,13 @@ permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ['3.11', '3.12']
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -22,7 +22,7 @@ jobs:
       - run: ruff format --check .
       - run: pytest --cov=pdtoolkit --cov-report=term-missing --cov-report=xml
       - run: python -m build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: package-and-coverage-${{ matrix.python-version }}
           path: |
@@ -30,10 +30,10 @@ jobs:
             coverage.xml
   demonstration:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: pip
@@ -42,7 +42,7 @@ jobs:
       - run: pd-toolkit suite --config configs/demo.yaml --output output/ci
       - run: pd-toolkit verify output/ci/baseline
       - run: python scripts/check_demo.py output/ci
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: pd-validation-reports-and-evidence
