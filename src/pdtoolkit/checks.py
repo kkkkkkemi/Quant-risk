@@ -98,6 +98,9 @@ def chronological_split(frame: pd.DataFrame, config: Config) -> dict[str, pd.Dat
             raise IntegrityError(f"Missing observations for {name} split years")
         if name != "test" and stage.default_12m.nunique() != 2:
             raise IntegrityError(f"{name} split requires defaults and non-defaults")
+    all_missing_train = [feature for feature in NUMERIC if stages["train"][feature].isna().all()]
+    if all_missing_train:
+        raise IntegrityError(f"Entirely missing training features: {all_missing_train}")
     values = list(stages.values())
     for before, after in zip(values, values[1:]):
         if before.outcome_end.max() >= after.observation_date.min():

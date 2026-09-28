@@ -78,6 +78,30 @@ def verify_bundle(directory):
         path = (directory / name).resolve()
         if not path.is_relative_to(directory) or not path.is_file() or sha256(path) != expected:
             failures.append(name)
+    archive_path = directory / "evidence.zip"
+    expected_files = set(manifest["artifacts"]) | {"manifest.json"}
+    actual_files = {
+        path.relative_to(directory).as_posix()
+        for path in directory.rglob("*")
+        if path.is_file() and path != archive_path
+    }
+    if actual_files != expected_files:
+        failures.append("artifact inventory")
+    if archive_path.is_file():
+        try:
+            with zipfile.ZipFile(archive_path) as archive:
+                names = archive.namelist()
+                if len(names) != len(expected_files) or set(names) != expected_files:
+                    failures.append("evidence.zip")
+                elif archive.read("manifest.json") != (directory / "manifest.json").read_bytes():
+                    failures.append("evidence.zip")
+                elif any(
+                    hashlib.sha256(archive.read(name)).hexdigest() != expected
+                    for name, expected in manifest["artifacts"].items()
+                ):
+                    failures.append("evidence.zip")
+        except (OSError, KeyError, zipfile.BadZipFile):
+            failures.append("evidence.zip")
     return {
         "status": "passed" if not failures else "failed",
         "failures": failures,
@@ -88,6 +112,8 @@ def verify_bundle(directory):
 def run_experiment(config: Config, output: str | Path):
     config.validate()
     output = Path(output)
+    if output.exists() and not output.is_dir():
+        raise ValueError("Output path must be a directory")
     if output.exists() and any(output.iterdir()):
         raise ValueError(
             "Output directory is not empty; choose a new directory to preserve evidence"

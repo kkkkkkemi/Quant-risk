@@ -115,6 +115,9 @@ class Config:
             raise ValueError("Split years fall outside generated data")
         if d.stress_start_year < min(s.test):
             raise ValueError("Stress may start only in the final test window")
+        if d.scenario in {"downturn", "composition_shift", "mechanism_shift", "immature"}:
+            if d.stress_start_year > max(s.test):
+                raise ValueError("Stress must start within the final test window")
         if not m.names or len(set(m.names)) != len(m.names) or set(m.names) - set(MODELS):
             raise ValueError("Choose unique supported model names")
         if m.calibration not in ("sigmoid", "isotonic", "none"):

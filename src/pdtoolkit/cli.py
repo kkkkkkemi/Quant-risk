@@ -64,6 +64,8 @@ def main(argv=None):
             return 0
         if len(set(args.scenarios)) != len(args.scenarios):
             raise ValueError("Suite scenarios must be unique")
+        if args.output.exists() and not args.output.is_dir():
+            raise ValueError("Suite output path must be a directory")
         if args.output.exists() and any(args.output.iterdir()):
             raise ValueError("Suite output directory must be empty")
         args.output.mkdir(parents=True, exist_ok=True)
