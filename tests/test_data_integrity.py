@@ -87,3 +87,11 @@ def test_missing_split_year_is_rejected(config, data):
     frame = data.observations.loc[data.observations.observation_date.dt.year != 2019]
     with pytest.raises(IntegrityError, match="Missing observations"):
         chronological_split(frame, config)
+
+
+def test_training_feature_without_observed_values_is_rejected(config, data):
+    train_years = data.observations.observation_date.dt.year.isin(config.splits.train)
+    data.observations.loc[train_years, "income"] = np.nan
+    assert check_inputs(data, config)["status"] == "passed"
+    with pytest.raises(IntegrityError, match="Entirely missing training features.*income"):
+        chronological_split(data.observations, config)

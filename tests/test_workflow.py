@@ -1,5 +1,6 @@
 import copy
 import json
+import zipfile
 
 import joblib
 import numpy as np
@@ -77,6 +78,14 @@ def test_end_to_end_report_evidence_reproducibility_and_saved_models(config, tmp
     test = chronological_split(generate(config).observations, config)["test"]
     assert np.isfinite(model.predict(test)[1]).all()
     assert (first / "evidence.zip").is_file()
+    with zipfile.ZipFile(first / "evidence.zip") as archive:
+        archive.extractall(tmp_path / "extracted")
+    assert verify_bundle(tmp_path / "extracted")["status"] == "passed"
+    archive_path = first / "evidence.zip"
+    original_archive = archive_path.read_bytes()
+    archive_path.write_bytes(original_archive[:-80])
+    assert verify_bundle(first)["failures"] == ["evidence.zip"]
+    archive_path.write_bytes(original_archive)
     with (first / "predictions.csv").open("a") as stream:
         stream.write("tampered\n")
     assert verify_bundle(first)["failures"] == ["predictions.csv"]
@@ -87,6 +96,8 @@ def test_output_evidence_not_overwritten(config, tmp_path):
     with pytest.raises(ValueError, match="not empty"):
         run_experiment(config, tmp_path)
     assert (tmp_path / "existing.txt").read_text() == "keep"
+    with pytest.raises(ValueError, match="must be a directory"):
+        run_experiment(config, tmp_path / "existing.txt")
 
 
 def test_integrity_failure_creates_evidence(config, tmp_path):
@@ -112,6 +123,17 @@ def test_invalid_config_rejected(mutate):
     config = Config()
     mutate(config)
     with pytest.raises(ValueError):
+        config.validate()
+
+
+@pytest.mark.parametrize(
+    "scenario", ["downturn", "composition_shift", "mechanism_shift", "immature"]
+)
+def test_stress_scenario_requires_test_period_overlap(scenario):
+    config = Config()
+    config.data.scenario = scenario
+    config.data.stress_start_year = max(config.splits.test) + 1
+    with pytest.raises(ValueError, match="within the final test window"):
         config.validate()
 
 
