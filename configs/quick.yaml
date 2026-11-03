@@ -1,0 +1,9 @@
+# Small experiment for a first run. Wider uncertainty is expected.
+data:
+  n_per_year: 600
+models:
+  logistic_c: [1.0]
+  boosting_leaves: [7]
+  boosting_iterations: 60
+validation:
+  bootstrap_samples: 30
